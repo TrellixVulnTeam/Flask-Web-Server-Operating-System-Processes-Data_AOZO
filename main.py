@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import pandas as pd
 import os
-from flask import Flask,render_template,request,redirect
+from flask import Flask,render_template,request,redirect,send_from_directory
 from threading import Thread
 import base64
 from io import BytesIO
@@ -71,22 +71,23 @@ def hw4(args):
   fig, cycles_figure = plt.subplots(figsize =(10, 3))
   cycles_figure.hist(cycles, bins = n)
   fig.savefig("./templates/Cpu-cyles.png")
+
   
   # Create histogram for MEMORY Footprint
   fig2, mem_figure = plt.subplots(figsize =(10, 3))
   mem_figure.hist(mem, bins = n)
   fig2.savefig("./templates/Mem-footprint.png")
-  
+
   # Create HTML for Histogram visualization
   tmpfile = BytesIO()
   fig.savefig(tmpfile, format='png')
   encoded = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
-  cycle_graph = '<script>alert("Sorry, it could take a moment to load while creating your histograms")</script><h1 style=text-align:center>Process Simulator</h1>' + f"<h4>Total Processes: {n}</h4>" + f"<h4>Average CPU time: {np.mean(cycles)} cycles</h4>" + f"<h5>Max CPU cycles: {cycle_max}</h5>" + f"<h5>Min CPU cycles: {cycle_min}</h5>" + '<div style=text-align:center><img src=\'data:image/png;base64,{}\'></div>'.format(encoded) 
+  cycle_graph = '<html><script>alert("Sorry, it could take a moment to load while creating your histograms")</script><style>h3 {color:#1D4348;margin:5%}div{margin:5%}body{background-color:#ABEDF5}h1{text-align:center;margin-top:5%</style><body><div><h1>Process Simulator</h1>'+f"<h2 style=text-align:center>Total Processes: {n}</h2>"+f"<h3 style=padding-left:60px>Average CPU time:  {int(np.mean(cycles))} cycles</h3>"+f"<h3 style=padding-left:60px>Max CPU cycles: {cycle_max}</h3>"+f"<h3 style=padding-left:60px>Min CPU cycles: {cycle_min}</h3>"+'<div style=text-align:center><img src=\'data:image/png;base64,{}\'></div>'.format(encoded) 
   
   tmpfile = BytesIO()
   fig2.savefig(tmpfile, format='png')
   encoded = base64.b64encode(tmpfile.getvalue()).decode('utf-8')
-  memory_graph = f"<h4>Average Memory footprint: {np.mean(mem)} Kb's</h4>" + f"<h5>Max Memory : {cpu_max}</h5>" + f"<h5>Min Memory : {cpu_min}</h5>" + '<div style=text-align:center><img src=\'data:image/png;base64,{}\'></div>'.format(encoded) 
+  memory_graph = f"<h3 style=padding-left:60px>Average Memory Footprint: {int(np.mean(mem))} kB's</h3>"+f"<h3 style=padding-left:60px>Max Memory: {cpu_max}</h3>"+f"<h3 style=padding-left:60px>Min Memory: {cpu_min}</h3>"+'<div style=text-align:center><img src=\'data:image/png;base64,{}\'></div></div></body></html>'.format(encoded) 
   
   cycle_graph = cycle_graph  + (memory_graph )
   with open('./templates/render.html','w') as f:
